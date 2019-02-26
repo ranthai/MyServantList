@@ -1,0 +1,45 @@
+{
+  "name": "myservantlist",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:5000/",
+  "dependencies": {
+    "@types/react": "16.7.21",
+    "@types/react-dom": "16.0.11",
+    "@types/react-redux": "^7.0.1",
+    "@types/react-router-dom": "^4.3.1",
+    "@types/redux-logger": "^3.0.7",
+    "concurrently": "^4.1.0",
+    "mongodb": "^3.1.13",
+    "node": "^11.10.0",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-redux": "^6.0.0",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "^2.1.5",
+    "redux-logger": "^3.0.6",
+    "reselect": "^4.0.0",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.84.0",
+    "typescript": "3.2.4"
+  },
+  "scripts": {
+    "start": "concurrently --kill-others-on-fail \"node Server.js\" \"react-scripts start\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@types/express": "^4.16.1",
+    "express": "^4.16.4"
+  }
+}
