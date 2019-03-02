@@ -27,30 +27,9 @@ OK = 200
 
 # request settings
 HEADERS = {"Accept-Encoding": "gzip"}
-REQUEST_INTERVAL = 1 # in seconds
-
-class ImageType(Enum):
-  SERVANT_ICON = 1
-  CLASS_ICON = 2
-  SERVANT_PORTRAIT = 3
-
-class Servant:
-  def __init__(self, id: int, icon_url: str, english_name: str, japanese_name: str, class_url: str,
-    stage_one_url: str):
-    self.id = id
-    self.icon_url = icon_url
-    self.english_name = english_name
-    self.japanese_name = japanese_name
-    self.class_url = class_url
-    # self.rarity = rarity
-    # min atk? max atk? min hp? max hp?
-    # command cards? np card?
-    # obtained?
-    self.stage_one_url = stage_one_url
+REQUEST_INTERVAL = .5 # in seconds
 
 def scrape_servants():
-  servant_list = list()
-
   servant_list_url = DOMAIN + SERVANT_LIST_PATH
   response = requests.get(servant_list_url, headers=HEADERS)
 
@@ -60,50 +39,7 @@ def scrape_servants():
 
   print('HTTP request succeeded. Parsing...')
   html = response.text
-  soup = BeautifulSoup(html, 'html.parser')
-
-  table = soup.find('table', {'class': 'sortable'})
-
-  # start at 1 to skip header
-  for tr in table.find_all('tr')[1:]:
-    tds = tr.find_all('td')
-    id = _get_id(tds[0])
-    print('Parsing Servant ' + str(id))
-
-    icon_url = _get_img_src(tds[1])
-    icon_filename = icon_url.split('/')[-1]
-    local_icon_url = ROOT_IMAGES_DIR + SERVANT_ICONS_DIR + icon_filename
-    _save_image_locally(icon_url, icon_filename, ImageType.SERVANT_ICON)
-
-    names = _get_names(tds[2])
-    english_name = names[0]
-    japanese_name = names[1]
-
-    class_url = _get_img_src(tds[3])
-    class_filename = class_url.split('/')[-1]
-    local_class_url = ROOT_IMAGES_DIR + CLASS_ICONS_DIR + class_filename
-    _save_image_locally(class_url, class_filename, ImageType.CLASS_ICON)
-
-    servant_url = _get_a_href(tds[1])
-    response = requests.get(servant_url, headers=HEADERS)
-    time.sleep(REQUEST_INTERVAL)
-
-    if (response.status_code != OK):
-      print('HTTP request failed.\nStatus code:', response.status_code)
-      local_stage_one_url = ''
-    else:
-      html = response.text
-      soup = BeautifulSoup(html, 'html.parser')
-
-      first = soup.find('div', {'title': '1st'})
-      stage_one_url = _get_img_src(first)
-      stage_one_filename = stage_one_url.split('/')[-1]
-      local_stage_one_url = ROOT_IMAGES_DIR + SERVANT_PORTRAITS_DIR + stage_one_filename
-      _save_image_locally(stage_one_url, stage_one_filename, ImageType.SERVANT_PORTRAIT)
-
-    servant = Servant(id, local_icon_url, english_name, japanese_name, local_class_url,
-      local_stage_one_url)
-    servant_list.append(servant)
+  servant_list = parse_servants(html)
 
   mongolab_uri = os.environ.get('MONGOLAB_URI')
   client = MongoClient(mongolab_uri)
@@ -112,38 +48,87 @@ def scrape_servants():
 
   print('Sending to database...')
   for servant in servant_list:
-    id = servant.id
-    icon_url = servant.icon_url
-    english_name = servant.english_name
-    japanese_name = servant.japanese_name
-    class_url = servant.class_url
-
-    stage_one_url = servant.stage_one_url
-    filter = {'id': id}
-    set = {'icon_url': icon_url, 'english_name': english_name, 'japanese_name': japanese_name, 'class_url': class_url,
-      'stage_one_url': stage_one_url}
+    filter = {'id': servant['id']}
+    set = servant
     update = {'$set': set}
     servants.update_one(filter, update, upsert=True)
 
   client.close()
 
-def _get_id(td: BeautifulSoup) -> int:
-  id = int(td.string)
+def parse_servants(html: str) -> list(dict()):
+  servant_list = list()
+  soup = BeautifulSoup(html, 'html.parser')
+
+  table = soup.find('table', {'class': 'sortable'})
+  # start at 1 to skip header
+  for tr in table.find_all('tr')[1:]:
+    servant = dict()
+    tds = tr.find_all('td')
+    id = _get_id(tds[0])
+    servant['id'] = id
+    print('Parsing Servant ' + str(id))
+
+    servant['icon_url'] = _create_local_image(tds[1], SERVANT_ICONS_DIR)
+
+    names = _get_names(tds[2])
+    servant['english_name'] = names[0]
+    servant['japanese_name'] = names[1]
+
+    servant['category'] = _get_category(tds[2])
+    servant['class_url'] = _create_local_image(tds[3], CLASS_ICONS_DIR)
+
+    servant_url = _get_servant_url(tds[1])
+    response = requests.get(servant_url, headers=HEADERS)
+    time.sleep(REQUEST_INTERVAL)
+
+    if (response.status_code != OK):
+      print('HTTP request failed.\nStatus code:', response.status_code)
+    else:
+      html = response.text
+      soup = BeautifulSoup(html, 'html.parser')
+
+      first = soup.find('div', {'title': '1st'})
+      servant['stage_one_url'] = _create_local_image(first, SERVANT_PORTRAITS_DIR)
+      # event servants have no 2nd or 3rd stage art (except saber lily)
+      # enemy servants have no 2nd, 3rd, or 4th stage art
+      second = soup.find('div', {'title': '2nd'})
+      if (second != None):
+        servant['stage_two_url'] = _create_local_image(second, SERVANT_PORTRAITS_DIR)
+      third = soup.find('div', {'title': '3rd'})
+      if (third != None):
+        servant['stage_three_url'] = _create_local_image(third, SERVANT_PORTRAITS_DIR)
+      fourth = soup.find('div', {'title': '4th'})
+      if (fourth != None):
+        servant['stage_four_url'] = _create_local_image(fourth, SERVANT_PORTRAITS_DIR)
+
+    servant_list.append(servant)
+
+  return servant_list
+
+def _get_id(bs: BeautifulSoup) -> int:
+  id = int(bs.string)
   return id
 
-def _get_img_src(td: BeautifulSoup) -> str:
-  img = td.find('img')
+def _get_img_src(bs: BeautifulSoup) -> str:
+  img = bs.find('img')
   thumb = img['src']
   src = _thumb_to_src(thumb)
   return DOMAIN + src
 
-def _get_a_href(td: BeautifulSoup) -> str:
-  a = td.find('a')
+def _get_category(bs: BeautifulSoup) -> str:
+  a = bs.find_all('a')
+  if (len(a) > 1):
+    return a[1]['title']
+  else:
+    return ''
+
+def _get_servant_url(bs: BeautifulSoup) -> str:
+  a = bs.find('a')
   href = a['href']
   return DOMAIN + href
 
-def _get_names(td: BeautifulSoup) -> list:
-  strings = td.stripped_strings
+def _get_names(bs: BeautifulSoup) -> list:
+  strings = bs.stripped_strings
   return [string for string in strings]
 
 def _thumb_to_src(thumb: str) -> str:
@@ -154,16 +139,14 @@ def _thumb_to_src(thumb: str) -> str:
   else:
     return ''
 
-def _save_image_locally(scrape_url: str, filename: str, image_type: ImageType) -> None:
-  if (image_type == ImageType.SERVANT_ICON):
-    file_path = SCRIPT_IMAGES_DIR + SERVANT_ICONS_DIR + filename
-  elif (image_type == ImageType.CLASS_ICON):
-    file_path = SCRIPT_IMAGES_DIR + CLASS_ICONS_DIR + filename
-  elif (image_type == ImageType.SERVANT_PORTRAIT):
-    file_path = SCRIPT_IMAGES_DIR + SERVANT_PORTRAITS_DIR + filename
-  else:
-    return
+def _create_local_image(bs: BeautifulSoup, subdir: str) -> str:
+  url = _get_img_src(bs)
+  filename = url.split('/')[-1]
+  _save_image_locally(url, filename, subdir)
+  return ROOT_IMAGES_DIR + subdir + filename
 
+def _save_image_locally(scrape_url: str, filename: str, subdir: str) -> None:
+  file_path = SCRIPT_IMAGES_DIR + subdir + filename
   if (os.path.isfile(file_path)):
     return
 

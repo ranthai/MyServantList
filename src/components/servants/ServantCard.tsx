@@ -1,11 +1,50 @@
-import { Image, Modal, Accordion } from 'semantic-ui-react';
+import { Image, Label, Modal, Dropdown, Accordion } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import Servant from '../../models/Servant';
 import './ServantCard.css'
+import { all } from 'q';
 
 interface Props {
   servant: Servant;
 }
+
+const options = [
+  {
+    text: 'None',
+    value: 'None'
+  },
+  {
+    text: 'Wished',
+    value: 'Wished'
+  },
+  {
+    text: 'Owned',
+    value: 'Owned'
+  }
+]
+
+const panels = [
+  {
+    key: 'passive-skills',
+    title: 'Passive Skills',
+    content: 'Under Construction'
+  },
+  {
+    key: 'active-skills',
+    title: 'Active Skills',
+    content: 'Under Construction'
+  },
+  {
+    key: 'noble-phantasm',
+    title: 'Noble Phantasm',
+    content: 'Under Construction'
+  },
+  {
+    key: 'ascension',
+    title: 'Ascension',
+    content: 'Under Construction'
+  }
+]
 
 class ServantCard extends Component<Props, {}> {
 
@@ -16,13 +55,13 @@ class ServantCard extends Component<Props, {}> {
           className='halfWidth'
           src={this.props.servant.stage_one_url}/>
         <Modal.Description>
+          {/* <Dropdown fluid selection
+            placeholder='Status'
+            options={options}/> */}
           <Accordion styled
-            exclusive={false}>
-            <Accordion.Title>Ascension Material</Accordion.Title>
-            <Accordion.Content>
-
-            </Accordion.Content>
-          </Accordion>
+            defaultActiveIndex={[0, 1, 2, 3]}
+            panels={panels}
+            exclusive={false}/>
         </Modal.Description>
       </Modal.Content>
     );
@@ -49,14 +88,14 @@ class ServantCard extends Component<Props, {}> {
       <Image
         className='hover'
         as='a'
-        src={this.props.servant.icon_url}>
-        </Image>
+        label={{attached: 'bottom', content: this.props.servant.english_name}}
+        src={this.props.servant.icon_url}/>
     );
   }
 
   render() {
     return (
-      <Modal
+      <Modal scrolling
         size='large'
         trigger={this.renderServantTile()}>
         {this.renderModalHeader()}
