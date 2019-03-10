@@ -1,54 +1,112 @@
-import { Image, Label, Modal, Dropdown, Accordion } from 'semantic-ui-react';
+import { Image, Segment, Header, Table, Modal, Dropdown, Container, Label, SegmentGroup } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import Servant from '../../models/Servant';
+import Servant, { isItemCount, Requirement, ItemCount, Condition } from '../../models/Servant';
 import './ServantCard.css'
-import { all } from 'q';
 
 interface Props {
   servant: Servant;
 }
 
-const options = [
-  {
-    text: 'None',
-    value: 'None'
-  },
-  {
-    text: 'Wished',
-    value: 'Wished'
-  },
-  {
-    text: 'Owned',
-    value: 'Owned'
-  }
-]
-
-const panels = [
-  {
-    key: 'passive-skills',
-    title: 'Passive Skills',
-    content: 'Under Construction'
-  },
-  {
-    key: 'active-skills',
-    title: 'Active Skills',
-    content: 'Under Construction'
-  },
-  {
-    key: 'noble-phantasm',
-    title: 'Noble Phantasm',
-    content: 'Under Construction'
-  },
-  {
-    key: 'ascension',
-    title: 'Ascension',
-    content: 'Under Construction'
-  }
-]
-
 class ServantCard extends Component<Props, {}> {
+  // private options = [
+  //   {
+  //     text: 'None',
+  //     value: 'None'
+  //   },
+  //   {
+  //     text: 'Wished',
+  //     value: 'Wished'
+  //   },
+  //   {
+  //     text: 'Owned',
+  //     value: 'Owned'
+  //   }
+  // ]
 
-  public renderModalContent() {
+  private contents = [
+    {
+      header: 'Passive Skills',
+      content: 'Under Construction'
+    },
+    {
+      header: 'Active Skills',
+      content: 'Under Construction'
+    },
+    {
+      header: 'Noble Phantasm',
+      content: 'Under Construction'
+    },
+    {
+      header: 'Ascension',
+      content: this.renderAscensionTable()
+    },
+    {
+      header: 'Skill Reinforcement',
+      content: 'Under Construction'
+    }
+  ]
+
+  private renderAscensionTable() {
+    return this.props.servant.ascensions ? (
+      <Table celled>
+        {this.renderAscensionTableHeader()}
+        <Table.Body>
+          {['1st', '2nd', '3rd', '4th'].map((level) => {
+            return (
+              <Table.Row>
+                <Table.Cell>{level}</Table.Cell>
+                <Table.Cell>
+                  <Segment.Group horizontal>
+                    {this.props.servant.ascensions![level].map((requirement) => {
+                      return this.renderRequirement(requirement)
+                    })}
+                  </Segment.Group>
+                </Table.Cell>
+              </Table.Row>)})}
+        </Table.Body>
+      </Table>
+    ) : null;
+  }
+
+  private renderAscensionTableHeader() {
+    return (
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>Ascension</Table.HeaderCell>
+          <Table.HeaderCell>Requirement</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+    );
+  }
+
+  private renderRequirement(requirement: Requirement) {
+    return (
+      isItemCount(requirement) ?
+        this.renderItemCount(requirement as ItemCount) :
+        this.renderCondition(requirement as Condition)
+    );
+  }
+
+  private renderItemCount(requirement: ItemCount) {
+    return (
+      <Segment>
+        <Label attached='bottom'>{requirement.name}</Label>
+        <Image
+          label={{floating: true, content: requirement.count}}
+          src={requirement.url}/>
+      </Segment>
+    );
+  }
+
+  private renderCondition(requirement: Condition) {
+    return (
+      <Segment>
+        {(requirement as Condition).condition}
+      </Segment>
+    );
+  }
+
+  private renderModalContent() {
     return (
       <Modal.Content image>
         <Image wrapped
@@ -57,17 +115,21 @@ class ServantCard extends Component<Props, {}> {
         <Modal.Description>
           {/* <Dropdown fluid selection
             placeholder='Status'
-            options={options}/> */}
-          <Accordion styled
-            defaultActiveIndex={[0, 1, 2, 3]}
-            panels={panels}
-            exclusive={false}/>
+            options={this.options}/> */}
+          {this.contents.map((content) => {
+            return (
+              <Container>
+                <Segment>
+                  <Header>{content.header}</Header>
+                  {content.content}
+                </Segment>
+              </Container>)})}
         </Modal.Description>
       </Modal.Content>
     );
   }
 
-  public renderModalHeader() {
+  private renderModalHeader() {
     return (
       <Modal.Header>
         <Image
@@ -83,7 +145,7 @@ class ServantCard extends Component<Props, {}> {
     );
   }
 
-  public renderServantTile() {
+  private renderServantTile() {
     return (
       <Image
         className='hover'
@@ -95,7 +157,8 @@ class ServantCard extends Component<Props, {}> {
 
   render() {
     return (
-      <Modal scrolling
+      <Modal
+        scrolling='true'
         size='large'
         trigger={this.renderServantTile()}>
         {this.renderModalHeader()}

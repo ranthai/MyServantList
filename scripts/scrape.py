@@ -6,6 +6,7 @@ import os
 import re
 import time
 from enum import Enum
+import urllib
 
 # urls
 DOMAIN = 'https://grandorder.wiki'
@@ -20,6 +21,7 @@ SCRIPT_IMAGES_DIR = '../public/images/'
 # subdirectories
 SERVANT_ICONS_DIR = 'icons/servants/'
 CLASS_ICONS_DIR = 'icons/classes/'
+ITEM_ICONS_DIR = 'icons/items/'
 SERVANT_PORTRAITS_DIR = 'portraits/servants/'
 
 # http status
@@ -27,14 +29,14 @@ OK = 200
 
 # request settings
 HEADERS = {"Accept-Encoding": "gzip"}
-REQUEST_INTERVAL = .5 # in seconds
+REQUEST_INTERVAL = 0 # in seconds
 
 def scrape_servants():
   servant_list_url = DOMAIN + SERVANT_LIST_PATH
   response = requests.get(servant_list_url, headers=HEADERS)
 
   if (response.status_code != OK):
-    print('HTTP request failed.\nStatus code:', response.status_code)
+    print(f'HTTP request for {servant_list_url} failed.\nStatus code:', response.status_code)
     return
 
   print('HTTP request succeeded. Parsing...')
@@ -54,6 +56,7 @@ def scrape_servants():
     servants.update_one(filter, update, upsert=True)
 
   client.close()
+  print('Done.')
 
 def parse_servants(html: str) -> list(dict()):
   servant_list = list()
@@ -64,7 +67,7 @@ def parse_servants(html: str) -> list(dict()):
   for tr in table.find_all('tr')[1:]:
     servant = dict()
     tds = tr.find_all('td')
-    id = _get_id(tds[0])
+    id = int(tds[0].get_text())
     servant['id'] = id
     print('Parsing Servant ' + str(id))
 
@@ -74,7 +77,10 @@ def parse_servants(html: str) -> list(dict()):
     servant['english_name'] = names[0]
     servant['japanese_name'] = names[1]
 
-    servant['category'] = _get_category(tds[2])
+    category = _get_category(tds[2])
+    if (category != ''):
+      servant['category'] = category
+
     servant['class_url'] = _create_local_image(tds[3], CLASS_ICONS_DIR)
 
     servant_url = _get_servant_url(tds[1])
@@ -82,7 +88,7 @@ def parse_servants(html: str) -> list(dict()):
     time.sleep(REQUEST_INTERVAL)
 
     if (response.status_code != OK):
-      print('HTTP request failed.\nStatus code:', response.status_code)
+      print(f'HTTP request for {servant_url} failed.\nStatus code:', response.status_code)
     else:
       html = response.text
       soup = BeautifulSoup(html, 'html.parser')
@@ -101,13 +107,35 @@ def parse_servants(html: str) -> list(dict()):
       if (fourth != None):
         servant['stage_four_url'] = _create_local_image(fourth, SERVANT_PORTRAITS_DIR)
 
+      # enemy servants have no ascension
+      ascension_headline = soup.find('span', {'id': 'Ascension'})
+      if (ascension_headline != None):
+        ascensions_dict = dict()
+        # first sibling is newline
+        ascension_table = ascension_headline.parent.next_sibling.next_sibling
+        for tr in ascension_table.find_all('tr')[1:]:
+          # ord_to_card = ['1st': 'first', '2nd': 'second', '3rd': 'third', '4th': 'fourth', '5th': 'fifth',
+          # '6th': 'sixth', '7th': 'seventh', '8th': 'eighth', '']
+
+          th = tr.find('th')
+          if (th != None):
+            level = get_stripped_text(th)
+
+            tds = tr.find_all('td')
+            ascension_list = _get_items(tds[1])
+            ascension_list.append(_get_qp(tds[0]))
+          else:
+            # mash is special
+            tds = tr.find_all('td')
+            level = get_stripped_text(tds[0])
+
+            ascension_list = [{'condition': get_stripped_text(tds[1])}]
+          ascensions_dict[level] = ascension_list
+        servant['ascensions'] = ascensions_dict
+
     servant_list.append(servant)
 
   return servant_list
-
-def _get_id(bs: BeautifulSoup) -> int:
-  id = int(bs.string)
-  return id
 
 def _get_img_src(bs: BeautifulSoup) -> str:
   img = bs.find('img')
@@ -142,8 +170,9 @@ def _thumb_to_src(thumb: str) -> str:
 def _create_local_image(bs: BeautifulSoup, subdir: str) -> str:
   url = _get_img_src(bs)
   filename = url.split('/')[-1]
-  _save_image_locally(url, filename, subdir)
-  return ROOT_IMAGES_DIR + subdir + filename
+  decoded_filename = urllib.parse.unquote(filename)
+  _save_image_locally(url, decoded_filename, subdir)
+  return ROOT_IMAGES_DIR + subdir + decoded_filename
 
 def _save_image_locally(scrape_url: str, filename: str, subdir: str) -> None:
   file_path = SCRIPT_IMAGES_DIR + subdir + filename
@@ -151,15 +180,40 @@ def _save_image_locally(scrape_url: str, filename: str, subdir: str) -> None:
     return
 
   response = requests.get(scrape_url, headers=HEADERS, stream=True)
-
   if (response.status_code != OK):
-    print('HTTP request failed.\nStatus code:', response.status_code)
+    print(f'HTTP request for {scrape_url} failed.\nStatus code:', response.status_code)
     return
   else:
     with open(file_path, 'wb') as f:
       response.raw.decode_content = True
       shutil.copyfileobj(response.raw, f)
   time.sleep(REQUEST_INTERVAL)
+
+def _get_qp(bs: BeautifulSoup) -> dict():
+  qp = dict()
+  qp['name'] = 'QP'
+  # qp image doesn't show up on the screens we scrape
+  # so i hardcoded this lol.
+  _save_image_locally('https://grandorder.wiki/images/1/11/Icon_Item_QP.png', 'Icon_Item_QP.png', ITEM_ICONS_DIR)
+  qp['url'] = ROOT_IMAGES_DIR + ITEM_ICONS_DIR + 'Icon_Item_QP.png'
+  qp['count'] = bs.find('div').get_text()
+  return qp
+
+def _get_items(bs: BeautifulSoup) -> list:
+  items = list()
+  for div in bs.find_all('div'):
+    a = div.find('a')
+    # some cells have an empty div at the end
+    if (a != None) :
+      item = dict()
+      item['name'] = a['title']
+      item['url'] = _create_local_image(div, ITEM_ICONS_DIR)
+      item['count'] = div.get_text()
+      items.append(item)
+  return items
+
+def get_stripped_text(bs:BeautifulSoup) -> str:
+  return bs.get_text().strip()
 
 if __name__ == "__main__":
   scrape_servants()
