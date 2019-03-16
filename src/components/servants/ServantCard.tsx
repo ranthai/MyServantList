@@ -1,6 +1,7 @@
-import { Image, Segment, Header, Table, Modal, Dropdown, Container, Label, SegmentGroup } from 'semantic-ui-react';
+import { Image, Segment, Header, Modal, Dropdown } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import Servant, { isItemCount, Requirement, ItemCount, Condition } from '../../models/Servant';
+import Servant from '../../models/Servant';
+import AscensionTable from './AscensionTable'
 import './ServantCard.css'
 
 interface Props {
@@ -38,7 +39,7 @@ class ServantCard extends Component<Props, {}> {
     },
     {
       header: 'Ascension',
-      content: this.renderAscensionTable()
+      content: <AscensionTable servant={this.props.servant}/>
     },
     {
       header: 'Skill Reinforcement',
@@ -46,84 +47,24 @@ class ServantCard extends Component<Props, {}> {
     }
   ]
 
-  private renderAscensionTable() {
-    return this.props.servant.ascensions ? (
-      <Table celled>
-        {this.renderAscensionTableHeader()}
-        <Table.Body>
-          {['1st', '2nd', '3rd', '4th'].map((level) => {
-            return (
-              <Table.Row>
-                <Table.Cell>{level}</Table.Cell>
-                <Table.Cell>
-                  <Segment.Group horizontal>
-                    {this.props.servant.ascensions![level].map((requirement) => {
-                      return this.renderRequirement(requirement)
-                    })}
-                  </Segment.Group>
-                </Table.Cell>
-              </Table.Row>)})}
-        </Table.Body>
-      </Table>
-    ) : null;
-  }
-
-  private renderAscensionTableHeader() {
-    return (
-      <Table.Header>
-        <Table.Row>
-          <Table.HeaderCell>Ascension</Table.HeaderCell>
-          <Table.HeaderCell>Requirement</Table.HeaderCell>
-        </Table.Row>
-      </Table.Header>
-    );
-  }
-
-  private renderRequirement(requirement: Requirement) {
-    return (
-      isItemCount(requirement) ?
-        this.renderItemCount(requirement as ItemCount) :
-        this.renderCondition(requirement as Condition)
-    );
-  }
-
-  private renderItemCount(requirement: ItemCount) {
-    return (
-      <Segment>
-        <Label attached='bottom'>{requirement.name}</Label>
-        <Image
-          label={{floating: true, content: requirement.count}}
-          src={requirement.url}/>
-      </Segment>
-    );
-  }
-
-  private renderCondition(requirement: Condition) {
-    return (
-      <Segment>
-        {(requirement as Condition).condition}
-      </Segment>
-    );
-  }
-
   private renderModalContent() {
     return (
-      <Modal.Content image>
-        <Image wrapped
-          className='halfWidth'
-          src={this.props.servant.stage_one_url}/>
+      <Modal.Content>
         <Modal.Description>
+          <Segment>
+            <Image wrapped
+              className='halfWidth'
+              src={this.props.servant.stage_one_url}/>
+          </Segment>
           {/* <Dropdown fluid selection
             placeholder='Status'
             options={this.options}/> */}
           {this.contents.map((content) => {
             return (
-              <Container>
-                <Segment>
-                  <Header>{content.header}</Header>
-                  {content.content}
-                </Segment>
-              </Container>)})}
+              <Segment>
+                <Header>{content.header}</Header>
+                {content.content}
+              </Segment>)})}
         </Modal.Description>
       </Modal.Content>
     );
@@ -157,7 +98,7 @@ class ServantCard extends Component<Props, {}> {
 
   render() {
     return (
-      <Modal
+      <Modal closeIcon
         scrolling='true'
         size='large'
         trigger={this.renderServantTile()}>
