@@ -15,6 +15,9 @@ export default interface Servant {
   ascensions: {
     [level: string]: [Requirement] ;
   } | null;
+  skill_reinforcements: {
+    [level: string]: [ItemCount] ;
+  } | null;
 }
 
 export function isItemCount(requirement: ItemCount | Condition) {

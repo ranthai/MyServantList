@@ -1,8 +1,9 @@
 import { Image, Segment, Header, Modal, Dropdown } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import Servant from '../../models/Servant';
-import AscensionTable from './AscensionTable'
-import './ServantCard.css'
+import AscensionTable from './AscensionTable';
+import SkillReinforcementTable from './SkillReinforcementTable';
+import './ServantCard.css';
 
 interface Props {
   servant: Servant;
@@ -43,7 +44,7 @@ class ServantCard extends Component<Props, {}> {
     },
     {
       header: 'Skill Reinforcement',
-      content: 'Under Construction'
+      content: <SkillReinforcementTable servant={this.props.servant}/>
     }
   ]
 

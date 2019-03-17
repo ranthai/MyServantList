@@ -107,35 +107,62 @@ def parse_servants(html: str) -> list(dict()):
       if (fourth != None):
         servant['stage_four_url'] = _create_local_image(fourth, SERVANT_PORTRAITS_DIR)
 
-      # enemy servants have no ascension
-      ascension_headline = soup.find('span', {'id': 'Ascension'})
-      if (ascension_headline != None):
-        ascensions_dict = dict()
-        # first sibling is newline
-        ascension_table = ascension_headline.parent.next_sibling.next_sibling
-        for tr in ascension_table.find_all('tr')[1:]:
-          # ord_to_card = ['1st': 'first', '2nd': 'second', '3rd': 'third', '4th': 'fourth', '5th': 'fifth',
-          # '6th': 'sixth', '7th': 'seventh', '8th': 'eighth', '']
-
-          th = tr.find('th')
-          if (th != None):
-            level = get_stripped_text(th)
-
-            tds = tr.find_all('td')
-            ascension_list = _get_items(tds[1])
-            ascension_list.append(_get_qp(tds[0]))
-          else:
-            # mash is special
-            tds = tr.find_all('td')
-            level = get_stripped_text(tds[0])
-
-            ascension_list = [{'condition': get_stripped_text(tds[1])}]
-          ascensions_dict[level] = ascension_list
+      ascensions_dict = _parse_ascension_table(soup)
+      if (ascensions_dict != None):
         servant['ascensions'] = ascensions_dict
+
+      skill_reinforcement_dict = _parse_skill_reinforcement_table(soup)
+      if (skill_reinforcement_dict != None):
+        servant['skill_reinforcements'] = skill_reinforcement_dict
 
     servant_list.append(servant)
 
   return servant_list
+
+def _parse_ascension_table(bs: BeautifulSoup) -> dict:
+  # enemy servants have no ascension
+  headline = bs.find('span', {'id': 'Ascension'})
+  if (headline != None):
+    ascensions_dict = dict()
+    # first sibling is newline
+    table = headline.parent.next_sibling.next_sibling
+    for tr in table.find_all('tr')[1:]:
+      th = tr.find('th')
+      if (th != None):
+        level = _get_stripped_text(th)
+
+        tds = tr.find_all('td')
+        ascension_list = _get_items(tds[1])
+        ascension_list.append(_get_qp(tds[0]))
+      else:
+        # mash is special
+        tds = tr.find_all('td')
+        level = _get_stripped_text(tds[0])
+
+        ascension_list = [{'condition': _get_stripped_text(tds[1])}]
+      ascensions_dict[level] = ascension_list
+    return ascensions_dict
+  else:
+    return None
+
+def _parse_skill_reinforcement_table(bs: BeautifulSoup) -> dict:
+  # enemy servants have no ascension
+  headline = bs.find('span', {'id': 'Skill_Reinforcement'})
+  if (headline != None):
+    skill_reinforcement_dict = dict()
+    # first sibling is newline
+    table = headline.parent.next_sibling.next_sibling
+    for tr in table.find_all('tr')[1:]:
+      th = tr.find('th')
+      level = _get_stripped_text(th)
+
+      tds = tr.find_all('td')
+      skill_reinforcement_list = _get_items(tds[1])
+      skill_reinforcement_list.append(_get_qp(tds[0]))
+      skill_reinforcement_dict[level] = skill_reinforcement_list
+    return skill_reinforcement_dict
+  else:
+    return None
 
 def _get_img_src(bs: BeautifulSoup) -> str:
   img = bs.find('img')
@@ -201,19 +228,25 @@ def _get_qp(bs: BeautifulSoup) -> dict():
 
 def _get_items(bs: BeautifulSoup) -> list:
   items = list()
-  for div in bs.find_all('div'):
+  item_style = 'display:inline-block;position:relative;margin-right:5px'
+  for div in bs.find_all('div', {'style': item_style}):
     a = div.find('a')
     # some cells have an empty div at the end
     if (a != None) :
       item = dict()
       item['name'] = a['title']
       item['url'] = _create_local_image(div, ITEM_ICONS_DIR)
-      item['count'] = div.get_text()
+      count_str = div.get_text()
+      if (count_str != ''):
+        item['count'] = count_str
+      else:
+        item['count'] = '1'
+
       items.append(item)
   return items
 
-def get_stripped_text(bs:BeautifulSoup) -> str:
+def _get_stripped_text(bs:BeautifulSoup) -> str:
   return bs.get_text().strip()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   scrape_servants()
