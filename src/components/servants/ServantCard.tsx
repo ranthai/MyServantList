@@ -10,20 +10,20 @@ interface Props {
 }
 
 class ServantCard extends Component<Props, {}> {
-  // private options = [
-  //   {
-  //     text: 'None',
-  //     value: 'None'
-  //   },
-  //   {
-  //     text: 'Wished',
-  //     value: 'Wished'
-  //   },
-  //   {
-  //     text: 'Owned',
-  //     value: 'Owned'
-  //   }
-  // ]
+  private options = [
+    {
+      text: 'None',
+      value: 'None'
+    },
+    {
+      text: 'Wished',
+      value: 'Wished'
+    },
+    {
+      text: 'Owned',
+      value: 'Owned'
+    }
+  ]
 
   private contents = [
     {
@@ -40,11 +40,15 @@ class ServantCard extends Component<Props, {}> {
     },
     {
       header: 'Ascension',
-      content: <AscensionTable servant={this.props.servant}/>
+      content: this.props.servant.ascensions ?
+        <AscensionTable ascensions={this.props.servant.ascensions}/>
+        : 'None'
     },
     {
       header: 'Skill Reinforcement',
-      content: <SkillReinforcementTable servant={this.props.servant}/>
+      content: this.props.servant.skill_reinforcements ?
+        <SkillReinforcementTable skill_reinforcements={this.props.servant.skill_reinforcements}/>
+        : 'None'
     }
   ]
 
@@ -52,14 +56,14 @@ class ServantCard extends Component<Props, {}> {
     return (
       <Modal.Content>
         <Modal.Description>
+          <Dropdown selection
+            placeholder='Status'
+            options={this.options}/>
           <Segment>
             <Image wrapped
               className='halfWidth'
               src={this.props.servant.stage_one_url}/>
           </Segment>
-          {/* <Dropdown fluid selection
-            placeholder='Status'
-            options={this.options}/> */}
           {this.contents.map((content) => {
             return (
               <Segment>

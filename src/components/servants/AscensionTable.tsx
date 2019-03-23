@@ -1,10 +1,10 @@
 import { Image, Segment, Table, Label } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import Servant, { isItemCount, Requirement, ItemCount, Condition } from '../../models/Servant';
+import { isItemCount, Requirement, ItemCount, Condition, Ascensions } from '../../models/Servant';
 import './ServantCard.css'
 
 interface Props {
-  servant: Servant;
+  ascensions: Ascensions;
 }
 
 class AscensionTable extends Component<Props, {}> {
@@ -28,7 +28,7 @@ class AscensionTable extends Component<Props, {}> {
               <Table.Cell>{level}</Table.Cell>
               <Table.Cell>
                 <Segment.Group horizontal>
-                  {this.props.servant.ascensions![level].map((requirement) => {
+                  {this.props.ascensions[level].map((requirement) => {
                     return this.renderRequirement(requirement)
                   })}
                 </Segment.Group>
@@ -67,12 +67,10 @@ class AscensionTable extends Component<Props, {}> {
 
   render() {
     return (
-      this.props.servant.ascensions ? (
-        <Table celled>
-          {this.renderAscensionTableHeader()}
-          {this.renderAscensionTableBody()}
-        </Table>
-      ) : null
+      <Table celled>
+        {this.renderAscensionTableHeader()}
+        {this.renderAscensionTableBody()}
+      </Table>
     );
   }
 }

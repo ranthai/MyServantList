@@ -1,4 +1,3 @@
-import { ItemContent } from "semantic-ui-react";
 
 export default interface Servant {
   id: number;
@@ -12,12 +11,8 @@ export default interface Servant {
   stage_two_url: string | null;
   stage_three_url: string | null;
   stage_four_url: string | null;
-  ascensions: {
-    [level: string]: [Requirement] ;
-  } | null;
-  skill_reinforcements: {
-    [level: string]: [ItemCount] ;
-  } | null;
+  ascensions?: Ascensions;
+  skill_reinforcements?: SkillReinforcements;
 }
 
 export function isItemCount(requirement: ItemCount | Condition) {
@@ -25,6 +20,14 @@ export function isItemCount(requirement: ItemCount | Condition) {
 }
 
 export type Requirement = ItemCount | Condition;
+
+export interface Ascensions {
+  [level: string]: [Requirement] ;
+}
+
+export interface SkillReinforcements {
+  [level: string]: [ItemCount] ;
+}
 
 export interface ItemCount {
   name: string;

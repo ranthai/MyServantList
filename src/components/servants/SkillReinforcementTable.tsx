@@ -1,10 +1,10 @@
 import { Image, Segment, Table, Label } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import Servant, { ItemCount } from '../../models/Servant';
+import { ItemCount, SkillReinforcements } from '../../models/Servant';
 import './ServantCard.css'
 
 interface Props {
-  servant: Servant;
+  skill_reinforcements: SkillReinforcements;
 }
 
 class SkillReinforcementTable extends Component<Props, {}> {
@@ -28,7 +28,7 @@ class SkillReinforcementTable extends Component<Props, {}> {
               <Table.Cell>{level}</Table.Cell>
               <Table.Cell>
                 <Segment.Group horizontal>
-                  {this.props.servant.skill_reinforcements![level].map((item_count) => {
+                  {this.props.skill_reinforcements[level].map((item_count) => {
                     return this.renderItemCount(item_count as ItemCount)
                   })}
                 </Segment.Group>
@@ -51,12 +51,10 @@ class SkillReinforcementTable extends Component<Props, {}> {
 
   render() {
     return (
-      this.props.servant.ascensions ? (
-        <Table celled>
-          {this.renderSkillReinforcementTableHeader()}
-          {this.renderSkillReinforcementTableBody()}
-        </Table>
-      ) : null
+      <Table celled>
+        {this.renderSkillReinforcementTableHeader()}
+        {this.renderSkillReinforcementTableBody()}
+      </Table>
     );
   }
 }
