@@ -50,7 +50,7 @@ class AscensionTable extends Component<Props, {}> {
     return (
       <Segment>
         <Label attached='bottom'>{requirement.name}</Label>
-        <Image
+        <Image centered
           label={{floating: true, content: requirement.count}}
           src={requirement.url}/>
       </Segment>

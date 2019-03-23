@@ -1,6 +1,6 @@
-import { Image, Segment, Header, Modal, Dropdown } from 'semantic-ui-react';
-import React, { Component } from 'react';
-import Servant from '../../models/Servant';
+import { Image, Segment, Header, Modal, Dropdown, DropdownItemProps, DropdownProps } from 'semantic-ui-react';
+import React, { Component, SyntheticEvent } from 'react';
+import Servant, { Category } from '../../models/Servant';
 import AscensionTable from './AscensionTable';
 import SkillReinforcementTable from './SkillReinforcementTable';
 import './ServantCard.css';
@@ -9,11 +9,34 @@ interface Props {
   servant: Servant;
 }
 
-class ServantCard extends Component<Props, {}> {
+interface State {
+  status: CollectionStatus;
+}
+
+enum CollectionStatus {
+  None = 'None',
+  Unwanted = 'Unwanted',
+  Wished = 'Wished',
+  Owned = 'Owned'
+}
+
+class ServantCard extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      status: CollectionStatus.None
+    }
+    this.setStatus = this.setStatus.bind(this)
+  }
+
   private options = [
     {
       text: 'None',
       value: 'None'
+    },
+    {
+      text: 'Unwanted',
+      value: 'Unwanted'
     },
     {
       text: 'Wished',
@@ -52,13 +75,23 @@ class ServantCard extends Component<Props, {}> {
     }
   ]
 
+  private setStatus(event: SyntheticEvent<HTMLElement>, data: DropdownProps) {
+    this.setState({
+      status: (data.value as CollectionStatus)
+    })
+  }
+
   private renderModalContent() {
     return (
       <Modal.Content>
         <Modal.Description>
-          <Dropdown selection
-            placeholder='Status'
-            options={this.options}/>
+          {this.props.servant.category !== Category.EnemyServants ?
+            <Dropdown selection
+              value={this.state.status}
+              onChange={this.setStatus}
+              placeholder='Status'
+              options={this.options}/>
+              : null}
           <Segment>
             <Image wrapped
               className='halfWidth'
@@ -91,12 +124,25 @@ class ServantCard extends Component<Props, {}> {
     );
   }
 
+  private statusToLabelColor() {
+    switch(this.state.status) {
+      case CollectionStatus.Unwanted:
+        return 'red';
+      case CollectionStatus.Wished:
+        return 'green';
+      case CollectionStatus.Owned:
+        return 'blue';
+      default:
+        return null;
+    }
+  }
+
   private renderServantTile() {
     return (
       <Image
         className='hover'
         as='a'
-        label={{attached: 'bottom', content: this.props.servant.english_name}}
+        label={{attached: 'bottom', color: this.statusToLabelColor(), content: this.props.servant.english_name}}
         src={this.props.servant.icon_url}/>
     );
   }

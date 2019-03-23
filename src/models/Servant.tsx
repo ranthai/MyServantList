@@ -5,7 +5,7 @@ export default interface Servant {
   class_url: string;
   english_name: string;
   japanese_name: string;
-  category?: string;
+  category?: Category;
 
   stage_one_url: string;
   stage_two_url?: string;
@@ -13,6 +13,14 @@ export default interface Servant {
   stage_four_url?: string;
   ascensions?: Ascensions;
   skill_reinforcements?: SkillReinforcements;
+}
+
+export enum Category {
+  UnlockableServants = 'Unlockable Servants',
+  EventServants = 'Event Servants',
+  FriendPoints = 'Friend Points',
+  LimitedServants = 'Limited Servants',
+  EnemyServants = 'Enemy Servants'
 }
 
 export function isItemCount(requirement: ItemCount | Condition) {
