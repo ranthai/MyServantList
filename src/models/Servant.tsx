@@ -5,12 +5,12 @@ export default interface Servant {
   class_url: string;
   english_name: string;
   japanese_name: string;
-  category: string | null;
+  category?: string;
 
   stage_one_url: string;
-  stage_two_url: string | null;
-  stage_three_url: string | null;
-  stage_four_url: string | null;
+  stage_two_url?: string;
+  stage_three_url?: string;
+  stage_four_url?: string;
   ascensions?: Ascensions;
   skill_reinforcements?: SkillReinforcements;
 }
