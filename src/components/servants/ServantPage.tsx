@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import ServantGrid from './ServantGrid';
 import Servant from '../../models/Servant';
 
-// todo fix types
 export interface Props {
   servants: Servant[],
   addServants: (servants: Servant[]) => void

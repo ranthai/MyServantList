@@ -6,6 +6,7 @@ class App extends Component {
   render() {
     return (
       <Grid centered>
+        Insert splash screen here.
       </Grid>
     );
   }
