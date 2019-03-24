@@ -29,6 +29,25 @@ class ServantCard extends Component<Props, State> {
     this.setStatus = this.setStatus.bind(this)
   }
 
+  private getCollectionStatus() {
+    var collection_servants_string = window.localStorage.getItem('COLLECTION_SERVANTS');
+    if (collection_servants_string === null) return CollectionStatus.None
+
+    var collection_servants = JSON.parse(collection_servants_string);
+    var id = this.props.servant.id;
+    return collection_servants[id];
+  }
+
+  private defaultStatus() {
+    this.setState ({
+      status: this.getCollectionStatus()
+    })
+  }
+
+  componentDidMount() {
+    this.defaultStatus()
+  }
+
   private options = [
     {
       text: 'None',
@@ -76,9 +95,17 @@ class ServantCard extends Component<Props, State> {
   ]
 
   private setStatus(event: SyntheticEvent<HTMLElement>, data: DropdownProps) {
+    var value = (data.value as CollectionStatus)
+
     this.setState({
-      status: (data.value as CollectionStatus)
+      status: value
     })
+
+    var collection_servants_string = window.localStorage.getItem('COLLECTION_SERVANTS');
+    var collection_servants = collection_servants_string ? JSON.parse(collection_servants_string) : [];
+    var id = this.props.servant.id;
+    collection_servants[id] = value;
+    window.localStorage.setItem('COLLECTION_SERVANTS', JSON.stringify(collection_servants))
   }
 
   private renderModalContent() {
