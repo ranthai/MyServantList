@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-class CraftEssences extends Component {
+export default class CraftEssences extends Component {
 
   render() {
     return (
@@ -10,5 +10,3 @@ class CraftEssences extends Component {
     );
   }
 }
-
-export default CraftEssences;

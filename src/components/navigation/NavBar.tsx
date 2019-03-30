@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Dropdown } from 'semantic-ui-react'
+import { Menu } from 'semantic-ui-react'
 
-class NavBar extends Component {
+export default class NavBar extends Component {
   render() {
     return (
       <Menu pointing secondary>
@@ -15,11 +15,9 @@ class NavBar extends Component {
         <Menu.Item
           name='Craft Essences'
           as={Link} to='/craftessences'/>
-        <Dropdown item text='Tools'>
-          <Dropdown.Menu>
-            <Dropdown.Item>Material</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+        <Menu.Item
+          name='Servant Planner'
+          as={Link} to='/servantplanner'/>
         <Menu.Item
           name='About'
           as={Link} to='/about'/>
@@ -27,5 +25,3 @@ class NavBar extends Component {
     );
   }
 }
-
-export default NavBar;

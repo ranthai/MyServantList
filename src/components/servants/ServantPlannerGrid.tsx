@@ -7,7 +7,7 @@ interface Props {
   servants: Servant[]
 }
 
-export default class ServantGrid extends Component<Props, {}> {
+export default class ServantPlannerGrid extends Component<Props, {}> {
 
   render() {
     const { servants } = this.props

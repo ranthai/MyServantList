@@ -7,7 +7,7 @@ interface Props {
   skill_reinforcements: SkillReinforcements;
 }
 
-class SkillReinforcementTable extends Component<Props, {}> {
+export default class SkillReinforcementTable extends Component<Props, {}> {
   private renderSkillReinforcementTableHeader() {
     return (
       <Table.Header>
@@ -58,5 +58,3 @@ class SkillReinforcementTable extends Component<Props, {}> {
     );
   }
 }
-
-export default SkillReinforcementTable;

@@ -20,13 +20,9 @@ enum CollectionStatus {
   Owned = 'Owned'
 }
 
-class ServantCard extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      status: CollectionStatus.None
-    }
-    this.setStatus = this.setStatus.bind(this)
+export default class ServantCard extends Component<Props, State> {
+  state = {
+    status: CollectionStatus.None
   }
 
   private getCollectionStatus() {
@@ -94,7 +90,7 @@ class ServantCard extends Component<Props, State> {
     }
   ]
 
-  private setStatus(event: SyntheticEvent<HTMLElement>, data: DropdownProps) {
+  setStatus = (event: SyntheticEvent<HTMLElement>, data: DropdownProps) => {
     var value = (data.value as CollectionStatus)
 
     this.setState({
@@ -186,5 +182,3 @@ class ServantCard extends Component<Props, State> {
     );
   }
 }
-
-export default ServantCard;

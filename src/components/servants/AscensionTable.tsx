@@ -7,7 +7,7 @@ interface Props {
   ascensions: Ascensions;
 }
 
-class AscensionTable extends Component<Props, {}> {
+export default class AscensionTable extends Component<Props, {}> {
   private renderAscensionTableHeader() {
     return (
       <Table.Header>
@@ -74,5 +74,3 @@ class AscensionTable extends Component<Props, {}> {
     );
   }
 }
-
-export default AscensionTable;

@@ -1,15 +1,11 @@
 import 'semantic-ui-css/semantic.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Router from './navigation/Router';
-import { Provider } from 'react-redux';
-import Store from './store/index';
+import Router from './components/navigation/Router';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-  <Provider store={Store}>
-    <Router/>
-  </Provider>,
+  <Router/>,
   document.getElementById('root')
 );
 

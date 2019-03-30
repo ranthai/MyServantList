@@ -1,6 +1,6 @@
 import { Container } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import ServantGrid from './ServantGrid';
+import ServantPlannerGrid from './ServantPlannerGrid';
 import Servant from '../../models/Servant';
 
 export interface Props {
@@ -23,7 +23,7 @@ export default class ServantsPage extends Component<Props, State> {
 
     return (
       <Container>
-        <ServantGrid servants={servants}/>
+        <ServantPlannerGrid servants={servants}/>
       </Container>
     );
   }
