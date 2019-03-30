@@ -7,6 +7,7 @@ import re
 import time
 from enum import Enum
 import urllib
+import sys
 
 # urls
 DOMAIN = 'https://grandorder.wiki'
@@ -192,7 +193,7 @@ def _thumb_to_src(thumb: str) -> str:
   if match:
     return f'/images/{match[1]}/{match[2]}/{match[3]}'
   else:
-    return ''
+    return thumb
 
 def _create_local_image(bs: BeautifulSoup, subdir: str) -> str:
   url = _get_img_src(bs)
