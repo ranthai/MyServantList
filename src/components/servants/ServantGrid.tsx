@@ -1,24 +1,24 @@
 import { Grid } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import ServantCard from './ServantCard';
-import Servant from '../../models/Servant';
+import ServantData from '../../models/ServantData';
 
 interface Props {
-  servants: Servant[]
+  servant_datas: ServantData[]
 }
 
 export default class ServantGrid extends Component<Props, {}> {
 
   render() {
-    const { servants } = this.props
+    const { servant_datas } = this.props
 
     return (
       <Grid padded centered doubling stackable columns={8}>
-        {servants.map((servant) => {
+        {servant_datas.map((servant_data) => {
           return (
-            <Grid.Column key={servant.id}>
+            <Grid.Column key={servant_data.id}>
               <ServantCard
-                servant={servant}/>
+                servant_data={servant_data}/>
             </Grid.Column>
           )
         })}

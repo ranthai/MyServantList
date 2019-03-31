@@ -1,5 +1,5 @@
 
-export default interface Servant {
+export default interface ServantData {
   id: number;
   icon_url: string;
   class_url: string;

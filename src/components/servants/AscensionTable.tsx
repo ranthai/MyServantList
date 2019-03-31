@@ -1,6 +1,6 @@
 import { Image, Segment, Table, Label } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import { isItemCount, Requirement, ItemCount, Condition, Ascensions } from '../../models/Servant';
+import { isItemCount, Requirement, ItemCount, Condition, Ascensions } from '../../models/ServantData';
 import './ServantCard.css'
 
 interface Props {

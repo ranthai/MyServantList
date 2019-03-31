@@ -4,9 +4,9 @@ import NavBar from './NavBar';
 import App from './App';
 import ServantPage from '../servants/ServantPage';
 import CraftEssences from './CraftEssences';
-import ServantPlanner from '../servants/ServantPlanner';
+import ServantPlanner from '../servantplanner/ServantPlanner';
 import About from './About';
-import Servant from '../../models/Servant';
+import ServantData from '../../models/ServantData';
 import { callApi } from '../servants/ServantApi'
 
 export interface Props {
@@ -14,25 +14,25 @@ export interface Props {
 }
 
 export interface State {
-  servants: Servant[]
+  servant_datas: ServantData[]
 }
 
 export default class Router extends Component<Props, State> {
   state = {
-    servants: []
+    servant_datas: []
   }
 
-  loadServants = () => {
+  loadServantDatas = () => {
     callApi()
-    .then((servants: Servant[]) => {
+    .then((servant_datas: ServantData[]) => {
       this.setState({
-        servants: servants
+        servant_datas: servant_datas
       })
     })
   }
 
   render() {
-    const { servants } = this.state
+    const { servant_datas } = this.state
 
     return (
       <BrowserRouter>
@@ -40,10 +40,10 @@ export default class Router extends Component<Props, State> {
           <NavBar/>
           <Route exact path='/' component={App}/>
           <Route path='/servants' render={() =>
-            <ServantPage servants={servants} loadServants={this.loadServants}/>}/>
+            <ServantPage servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}/>
           <Route path='/craftessences' component={CraftEssences}/>
           <Route path='/servantplanner' render={() =>
-            <ServantPlanner servants={servants} loadServants={this.loadServants}/>}/>
+            <ServantPlanner servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}/>
           <Route path='/about' component={About}/>
         </div>
       </BrowserRouter>

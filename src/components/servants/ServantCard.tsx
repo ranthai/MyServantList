@@ -1,12 +1,12 @@
-import { Image, Segment, Header, Modal, Dropdown, DropdownItemProps, DropdownProps } from 'semantic-ui-react';
+import { Image, Segment, Header, Modal, Dropdown, DropdownProps } from 'semantic-ui-react';
 import React, { Component, SyntheticEvent } from 'react';
-import Servant, { Category } from '../../models/Servant';
+import ServantData, { Category } from '../../models/ServantData';
 import AscensionTable from './AscensionTable';
 import SkillReinforcementTable from './SkillReinforcementTable';
 import './ServantCard.css';
 
 interface Props {
-  servant: Servant;
+  servant_data: ServantData;
 }
 
 interface State {
@@ -30,7 +30,7 @@ export default class ServantCard extends Component<Props, State> {
     if (collection_servants_string === null) return CollectionStatus.None
 
     var collection_servants = JSON.parse(collection_servants_string);
-    var id = this.props.servant.id;
+    var id = this.props.servant_data.id;
     return collection_servants[id];
   }
 
@@ -78,14 +78,14 @@ export default class ServantCard extends Component<Props, State> {
     },
     {
       header: 'Ascension',
-      content: this.props.servant.ascensions ?
-        <AscensionTable ascensions={this.props.servant.ascensions}/>
+      content: this.props.servant_data.ascensions ?
+        <AscensionTable ascensions={this.props.servant_data.ascensions}/>
         : 'None'
     },
     {
       header: 'Skill Reinforcement',
-      content: this.props.servant.skill_reinforcements ?
-        <SkillReinforcementTable skill_reinforcements={this.props.servant.skill_reinforcements}/>
+      content: this.props.servant_data.skill_reinforcements ?
+        <SkillReinforcementTable skill_reinforcements={this.props.servant_data.skill_reinforcements}/>
         : 'None'
     }
   ]
@@ -99,7 +99,7 @@ export default class ServantCard extends Component<Props, State> {
 
     var collection_servants_string = window.localStorage.getItem('COLLECTION_SERVANTS');
     var collection_servants = collection_servants_string ? JSON.parse(collection_servants_string) : [];
-    var id = this.props.servant.id;
+    var id = this.props.servant_data.id;
     collection_servants[id] = value;
     window.localStorage.setItem('COLLECTION_SERVANTS', JSON.stringify(collection_servants))
   }
@@ -108,7 +108,7 @@ export default class ServantCard extends Component<Props, State> {
     return (
       <Modal.Content>
         <Modal.Description>
-          {this.props.servant.category !== Category.EnemyServants ?
+          {this.props.servant_data.category !== Category.EnemyServants ?
             <Dropdown selection
               value={this.state.status}
               onChange={this.setStatus}
@@ -118,7 +118,7 @@ export default class ServantCard extends Component<Props, State> {
           <Segment>
             <Image wrapped
               className='halfWidth'
-              src={this.props.servant.stage_one_url}/>
+              src={this.props.servant_data.stage_one_url}/>
           </Segment>
           {this.contents.map((content) => {
             return (
@@ -136,13 +136,13 @@ export default class ServantCard extends Component<Props, State> {
       <Modal.Header>
         <Image
           floated='left'
-          src={this.props.servant.class_url}/>
+          src={this.props.servant_data.class_url}/>
         <Image
           size='tiny'
           floated='right'
-          src={this.props.servant.icon_url}/>
-        <p>{this.props.servant.english_name}</p>
-        <p>{this.props.servant.japanese_name}</p>
+          src={this.props.servant_data.icon_url}/>
+        <p>{this.props.servant_data.english_name}</p>
+        <p>{this.props.servant_data.japanese_name}</p>
       </Modal.Header>
     );
   }
@@ -165,8 +165,8 @@ export default class ServantCard extends Component<Props, State> {
       <Image
         className='hover'
         as='a'
-        label={{attached: 'bottom', color: this.statusToLabelColor(), content: this.props.servant.english_name}}
-        src={this.props.servant.icon_url}/>
+        label={{attached: 'bottom', color: this.statusToLabelColor(), content: this.props.servant_data.english_name}}
+        src={this.props.servant_data.icon_url}/>
     );
   }
 

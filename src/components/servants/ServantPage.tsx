@@ -1,11 +1,11 @@
 import { Container } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import ServantGrid from './ServantGrid';
-import Servant from '../../models/Servant';
+import ServantData from '../../models/ServantData';
 
 export interface Props {
-  servants: Servant[],
-  loadServants: () => void
+  servant_datas: ServantData[],
+  loadServantDatas: () => void
 }
 
 export interface State {
@@ -15,15 +15,15 @@ export interface State {
 export default class ServantsPage extends Component<Props, State> {
 
   componentDidMount() {
-    this.props.loadServants()
+    this.props.loadServantDatas()
   };
 
   render() {
-    const { servants } = this.props
+    const { servant_datas } = this.props
 
     return (
       <Container>
-        <ServantGrid servants={servants}/>
+        <ServantGrid servant_datas={servant_datas}/>
       </Container>
     );
   }

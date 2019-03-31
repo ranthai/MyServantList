@@ -1,6 +1,6 @@
 import { Image, Segment, Table, Label } from 'semantic-ui-react';
 import React, { Component } from 'react';
-import { ItemCount, SkillReinforcements } from '../../models/Servant';
+import { ItemCount, SkillReinforcements } from '../../models/ServantData';
 import './ServantCard.css'
 
 interface Props {
