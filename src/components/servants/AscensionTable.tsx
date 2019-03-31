@@ -24,7 +24,7 @@ export default class AscensionTable extends Component<Props, {}> {
       <Table.Body>
         {['1st', '2nd', '3rd', '4th'].map((level) => {
           return (
-            <Table.Row>
+            <Table.Row key={level}>
               <Table.Cell>{level}</Table.Cell>
               <Table.Cell>
                 <Segment.Group horizontal>
@@ -48,7 +48,7 @@ export default class AscensionTable extends Component<Props, {}> {
 
   private renderItemCount(requirement: ItemCount) {
     return (
-      <Segment>
+      <Segment key={requirement.name}>
         <Label attached='bottom'>{requirement.name}</Label>
         <Image centered
           label={{floating: true, content: requirement.count}}
@@ -59,8 +59,8 @@ export default class AscensionTable extends Component<Props, {}> {
 
   private renderCondition(requirement: Condition) {
     return (
-      <Segment>
-        {(requirement as Condition).condition}
+      <Segment key={requirement.condition}>
+        {requirement.condition}
       </Segment>
     );
   }

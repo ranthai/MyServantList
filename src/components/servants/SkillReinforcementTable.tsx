@@ -24,7 +24,7 @@ export default class SkillReinforcementTable extends Component<Props, {}> {
       <Table.Body>
         {['2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th'].map((level) => {
           return (
-            <Table.Row>
+            <Table.Row key={level}>
               <Table.Cell>{level}</Table.Cell>
               <Table.Cell>
                 <Segment.Group horizontal>
@@ -40,7 +40,7 @@ export default class SkillReinforcementTable extends Component<Props, {}> {
 
   private renderItemCount(item_count: ItemCount) {
     return (
-      <Segment>
+      <Segment key={item_count.name}>
         <Label attached='bottom'>{item_count.name}</Label>
         <Image
           label={{floating: true, content: item_count.count}}

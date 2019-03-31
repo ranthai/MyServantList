@@ -122,7 +122,7 @@ export default class ServantCard extends Component<Props, State> {
           </Segment>
           {this.contents.map((content) => {
             return (
-              <Segment>
+              <Segment key={content.header}>
                 <Header>{content.header}</Header>
                 {content.content}
               </Segment>)})}
