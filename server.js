@@ -9,12 +9,19 @@ const db_url = process.env.MONGOLAB_URI;
 app.use(express.json());
 
 app.get('/api/servants/', (req, res) => {
+  const class_filter = req.query.class;
+
   MongoClient.connect(db_url, { useNewUrlParser: true })
   .then(function (client) {
     const myservantlist = client.db('myservantlist');
     const servants = myservantlist.collection('servants');
 
     var query = {};
+    if (class_filter) {
+      const class_filter_arr = JSON.parse(req.query.class)
+      if (class_filter_arr.length != 0)
+        query = {class: {$in: class_filter_arr}}
+    }
     var projection = {'_id': 0};
     var sort = {'id': 1}
 

@@ -1,21 +1,20 @@
 import { Container, Dropdown } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import ServantGrid from './ServantGrid';
-import ServantData from '../../models/ServantData';
+import ServantData, { ServantFilters } from '../../models/ServantData';
 
 export interface Props {
   servant_datas: ServantData[],
-  loadServantDatas: () => void
+  loadServantDatas: (filters: ServantFilters) => void
 }
 
-export interface State {
-
-}
-
-export default class ServantsPage extends Component<Props, State> {
+export default class ServantsPage extends Component<Props, ServantFilters> {
+  state = {
+    class_filters: []
+  }
 
   componentDidMount() {
-    this.props.loadServantDatas()
+    this.props.loadServantDatas(this.state)
   };
 
   private classFilterOptions() {
@@ -37,14 +36,21 @@ export default class ServantsPage extends Component<Props, State> {
   }
 
   private renderClassFilter() {
+    const { servant_datas } = this.props
+    const { class_filters } = this.state
+
     return (
-      this.props.servant_datas
+      servant_datas
         ? <Dropdown
           placeholder='Class'
           multiple
           search
           selection
+          clearable
           options={this.classFilterOptions()}
+          onChange={(event, data) => {
+            this.setState({class_filters: (data.value as string[])});
+          }}
         />
         : null
     )

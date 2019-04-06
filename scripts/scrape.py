@@ -194,13 +194,13 @@ def _get_rarity(bs: BeautifulSoup) -> int:
   text = _get_stripped_text(span)
   return int(text[0])
 
-# this won't work if the class is more than one word
-# but there isn't a case where we need this and it isn't one word yet
+# this won't work for every servant
+# ex: mash's is icon class shielder silver.png
 def _get_class(alt: str) -> str:
-  pattern = r'Icon Class (.*)[ \.].*'
+  pattern = r'Icon Class (.*)\..*'
   match = re.match(pattern, alt)
   if match:
-    return match[1]
+    return match[1].strip()
   else:
     return alt
 

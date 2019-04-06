@@ -17,6 +17,10 @@ export default interface ServantData {
   skill_reinforcements?: SkillReinforcements;
 }
 
+export interface ServantFilters {
+  class_filters: string[]
+}
+
 export enum Category {
   UnlockableServants = 'Unlockable Servants',
   EventServants = 'Event Servants',
