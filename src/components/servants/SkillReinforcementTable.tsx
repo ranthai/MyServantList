@@ -44,7 +44,8 @@ export default class SkillReinforcementTable extends Component<Props, {}> {
         <Label attached='bottom'>{item_count.name}</Label>
         <Image
           label={{floating: true, content: item_count.count}}
-          src={item_count.url}/>
+          src={item_count.url}
+        />
       </Segment>
     );
   }

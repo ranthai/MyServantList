@@ -18,7 +18,8 @@ export default class ServantGrid extends Component<Props, {}> {
           return (
             <Grid.Column key={servant_data.id}>
               <ServantCard
-                servant_data={servant_data}/>
+                servant_data={servant_data}
+              />
             </Grid.Column>
           )
         })}

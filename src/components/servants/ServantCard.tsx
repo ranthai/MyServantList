@@ -86,8 +86,8 @@ export default class ServantCard extends Component<Props, State> {
     },
     {
       header: 'Skill Reinforcement',
-      content: this.props.servant_data.skill_reinforcements ?
-        <SkillReinforcementTable skill_reinforcements={this.props.servant_data.skill_reinforcements}/>
+      content: this.props.servant_data.skill_reinforcements
+        ? <SkillReinforcementTable skill_reinforcements={this.props.servant_data.skill_reinforcements}/>
         : 'None'
     }
   ]
@@ -113,13 +113,14 @@ export default class ServantCard extends Component<Props, State> {
     return (
       <Modal.Content>
         <Modal.Description>
-          {servant_data.category !== Category.EnemyServants ?
-            <Dropdown selection
-              value={this.state.status}
-              onChange={this.setStatus}
-              placeholder='Status'
-              options={this.options}/>
-              : null}
+          {servant_data.category !== Category.EnemyServants
+            ? <Dropdown selection
+                value={this.state.status}
+                onChange={this.setStatus}
+                placeholder='Status'
+                options={this.options}
+              />
+            : null}
           <Segment>
             <Image wrapped
               className='halfWidth'

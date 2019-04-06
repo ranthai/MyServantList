@@ -25,7 +25,9 @@ export default class AscensionTable extends Component<Props, {}> {
         {['1st', '2nd', '3rd', '4th'].map((level) => {
           return (
             <Table.Row key={level}>
-              <Table.Cell>{level}</Table.Cell>
+              <Table.Cell>
+                {level}
+              </Table.Cell>
               <Table.Cell>
                 <Segment.Group horizontal>
                   {this.props.ascensions[level].map((requirement) => {
@@ -40,19 +42,22 @@ export default class AscensionTable extends Component<Props, {}> {
 
   private renderRequirement(requirement: Requirement) {
     return (
-      isItemCount(requirement) ?
-        this.renderItemCount(requirement as ItemCount) :
-        this.renderCondition(requirement as Condition)
+      isItemCount(requirement)
+        ? this.renderItemCount(requirement as ItemCount)
+        : this.renderCondition(requirement as Condition)
     );
   }
 
   private renderItemCount(requirement: ItemCount) {
     return (
       <Segment key={requirement.name}>
-        <Label attached='bottom'>{requirement.name}</Label>
+        <Label attached='bottom'>
+          {requirement.name}
+        </Label>
         <Image centered
           label={{floating: true, content: requirement.count}}
-          src={requirement.url}/>
+          src={requirement.url}
+        />
       </Segment>
     );
   }

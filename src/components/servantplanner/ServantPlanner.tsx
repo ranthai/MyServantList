@@ -23,7 +23,7 @@ export default class ServantsPage extends Component<Props, State> {
 
     return (
       <Container>
-        <ServantPlannerGrid servant_datas={servant_datas}/>
+        {/* <ServantPlannerGrid servant_datas={servant_datas}/> */}
       </Container>
     );
   }

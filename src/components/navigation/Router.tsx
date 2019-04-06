@@ -40,10 +40,12 @@ export default class Router extends Component<Props, State> {
           <NavBar/>
           <Route exact path='/' component={App}/>
           <Route path='/servants' render={() =>
-            <ServantPage servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}/>
+            <ServantPage servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}
+          />
           <Route path='/craftessences' component={CraftEssences}/>
           <Route path='/servantplanner' render={() =>
-            <ServantPlanner servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}/>
+            <ServantPlanner servant_datas={servant_datas} loadServantDatas={this.loadServantDatas}/>}
+          />
           <Route path='/about' component={About}/>
         </div>
       </BrowserRouter>
