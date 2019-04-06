@@ -22,8 +22,8 @@ export default class Router extends Component<Props, State> {
     servant_datas: []
   }
 
-  loadServantDatas = (filters: ServantFilters) => {
-    callApi(filters)
+  loadServantDatas = () => {
+    callApi()
     .then((servant_datas: ServantData[]) => {
       this.setState({
         servant_datas: servant_datas

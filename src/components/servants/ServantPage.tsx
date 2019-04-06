@@ -5,16 +5,21 @@ import ServantData, { ServantFilters } from '../../models/ServantData';
 
 export interface Props {
   servant_datas: ServantData[],
-  loadServantDatas: (filters: ServantFilters) => void
+  loadServantDatas: () => void
 }
 
-export default class ServantsPage extends Component<Props, ServantFilters> {
-  state = {
-    class_filters: []
-  }
+interface State {
+  filters: ServantFilters,
+  visible_servant_datas: ServantData[]
+}
+
+export default class ServantsPage extends Component<Props, State> {
+  // state = {
+  //   class_filters: []
+  // }
 
   componentDidMount() {
-    this.props.loadServantDatas(this.state)
+    this.props.loadServantDatas()
   };
 
   private classFilterOptions() {
@@ -37,21 +42,21 @@ export default class ServantsPage extends Component<Props, ServantFilters> {
 
   private renderClassFilter() {
     const { servant_datas } = this.props
-    const { class_filters } = this.state
+    // const { class_filters } = this.state
 
     return (
       servant_datas
         ? <Dropdown
-          placeholder='Class'
-          multiple
-          search
-          selection
-          clearable
-          options={this.classFilterOptions()}
-          onChange={(event, data) => {
-            this.setState({class_filters: (data.value as string[])});
-          }}
-        />
+            placeholder='Class'
+            multiple
+            search
+            selection
+            clearable
+            options={this.classFilterOptions()}
+            // onChange={(event, data) => {
+            //   this.setState({class_filters: (data.value as string[])});
+            // }}
+          />
         : null
     )
   }
