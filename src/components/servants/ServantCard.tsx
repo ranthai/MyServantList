@@ -26,11 +26,13 @@ export default class ServantCard extends Component<Props, State> {
   }
 
   private getCollectionStatus() {
+    const { servant_data } = this.props
+
     var collection_servants_string = window.localStorage.getItem('COLLECTION_SERVANTS');
     if (collection_servants_string === null) return CollectionStatus.None
 
     var collection_servants = JSON.parse(collection_servants_string);
-    var id = this.props.servant_data.id;
+    var id = servant_data.id;
     return collection_servants[id];
   }
 
@@ -91,6 +93,7 @@ export default class ServantCard extends Component<Props, State> {
   ]
 
   setStatus = (event: SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+    const { servant_data } = this.props
     var value = (data.value as CollectionStatus)
 
     this.setState({
@@ -99,16 +102,18 @@ export default class ServantCard extends Component<Props, State> {
 
     var collection_servants_string = window.localStorage.getItem('COLLECTION_SERVANTS');
     var collection_servants = collection_servants_string ? JSON.parse(collection_servants_string) : [];
-    var id = this.props.servant_data.id;
+    var id = servant_data.id;
     collection_servants[id] = value;
     window.localStorage.setItem('COLLECTION_SERVANTS', JSON.stringify(collection_servants))
   }
 
   private renderModalContent() {
+    const { servant_data } = this.props
+
     return (
       <Modal.Content>
         <Modal.Description>
-          {this.props.servant_data.category !== Category.EnemyServants ?
+          {servant_data.category !== Category.EnemyServants ?
             <Dropdown selection
               value={this.state.status}
               onChange={this.setStatus}
@@ -118,7 +123,7 @@ export default class ServantCard extends Component<Props, State> {
           <Segment>
             <Image wrapped
               className='halfWidth'
-              src={this.props.servant_data.stage_one_url}/>
+              src={servant_data.servant_portrait_one_url}/>
           </Segment>
           {this.contents.map((content) => {
             return (
@@ -132,17 +137,19 @@ export default class ServantCard extends Component<Props, State> {
   }
 
   private renderModalHeader() {
+    const { servant_data } = this.props
+
     return (
       <Modal.Header>
         <Image
           floated='left'
-          src={this.props.servant_data.class_url}/>
+          src={servant_data.class_icon_url}/>
         <Image
           size='tiny'
           floated='right'
-          src={this.props.servant_data.icon_url}/>
-        <p>{this.props.servant_data.english_name}</p>
-        <p>{this.props.servant_data.japanese_name}</p>
+          src={servant_data.servant_icon_url}/>
+        <p>{servant_data.english_name}</p>
+        <p>{servant_data.japanese_name}</p>
       </Modal.Header>
     );
   }
@@ -161,12 +168,14 @@ export default class ServantCard extends Component<Props, State> {
   }
 
   private renderServantTile() {
+    const { servant_data } = this.props
+
     return (
       <Image
         className='hover'
         as='a'
-        label={{attached: 'bottom', color: this.statusToLabelColor(), content: this.props.servant_data.english_name}}
-        src={this.props.servant_data.icon_url}/>
+        label={{attached: 'bottom', color: this.statusToLabelColor(), content: servant_data.english_name}}
+        src={servant_data.servant_icon_url}/>
     );
   }
 

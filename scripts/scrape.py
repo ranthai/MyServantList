@@ -40,7 +40,7 @@ def scrape_servants():
     print(f'HTTP request for {servant_list_url} failed.\nStatus code:', response.status_code)
     return
 
-  print('HTTP request succeeded. Parsing...')
+  print(f'HTTP request succeeded. Parsing {servant_list_url}')
   html = response.text
   servant_list = parse_servants(html)
 
@@ -61,28 +61,12 @@ def scrape_servants():
 
 def parse_servants(html: str) -> list(dict()):
   servant_list = list()
-  soup = BeautifulSoup(html, 'html.parser')
 
+  soup = BeautifulSoup(html, 'html.parser')
   table = soup.find('table', {'class': 'sortable'})
   # start at 1 to skip header
   for tr in table.find_all('tr')[1:]:
-    servant = dict()
     tds = tr.find_all('td')
-    id = int(tds[0].get_text())
-    servant['id'] = id
-    print('Parsing Servant ' + str(id))
-
-    servant['icon_url'] = _create_local_image(tds[1], SERVANT_ICONS_DIR)
-
-    names = _get_names(tds[2])
-    servant['english_name'] = names[0]
-    servant['japanese_name'] = names[1]
-
-    category = _get_category(tds[2])
-    if (category != ''):
-      servant['category'] = category
-
-    servant['class_url'] = _create_local_image(tds[3], CLASS_ICONS_DIR)
 
     servant_url = _get_servant_url(tds[1])
     response = requests.get(servant_url, headers=HEADERS)
@@ -91,34 +75,69 @@ def parse_servants(html: str) -> list(dict()):
     if (response.status_code != OK):
       print(f'HTTP request for {servant_url} failed.\nStatus code:', response.status_code)
     else:
+      print(f'HTTP request succeeded. Parsing {servant_url}')
+
       html = response.text
-      soup = BeautifulSoup(html, 'html.parser')
+      servant = parse_servant(html)
+      # some servants don't have an icon on their page, so grab it from the list page instead
+      servant['servant_icon_url'] = _create_local_image(tds[1], SERVANT_ICONS_DIR)
 
-      first = soup.find('div', {'title': '1st'})
-      servant['stage_one_url'] = _create_local_image(first, SERVANT_PORTRAITS_DIR)
-      # event servants have no 2nd or 3rd stage art (except saber lily)
-      # enemy servants have no 2nd, 3rd, or 4th stage art
-      second = soup.find('div', {'title': '2nd'})
-      if (second != None):
-        servant['stage_two_url'] = _create_local_image(second, SERVANT_PORTRAITS_DIR)
-      third = soup.find('div', {'title': '3rd'})
-      if (third != None):
-        servant['stage_three_url'] = _create_local_image(third, SERVANT_PORTRAITS_DIR)
-      fourth = soup.find('div', {'title': '4th'})
-      if (fourth != None):
-        servant['stage_four_url'] = _create_local_image(fourth, SERVANT_PORTRAITS_DIR)
-
-      ascensions_dict = _parse_ascension_table(soup)
-      if (ascensions_dict != None):
-        servant['ascensions'] = ascensions_dict
-
-      skill_reinforcement_dict = _parse_skill_reinforcement_table(soup)
-      if (skill_reinforcement_dict != None):
-        servant['skill_reinforcements'] = skill_reinforcement_dict
-
-    servant_list.append(servant)
+      servant_list.append(servant)
 
   return servant_list
+
+def parse_servant(html: str):
+  servant = dict()
+
+  soup = BeautifulSoup(html, 'html.parser')
+  table = soup.find('table', {'class': 'wikitable borderless'})
+  trs = table.find_all('tr')
+
+  divs = trs[0].find_all('div')
+
+  servant['id'] = _get_id(divs[0])
+  servant['rarity'] = _get_rarity(divs[0])
+
+  a = divs[1].find('a')
+  # most class icons have links to their corresponding class
+  # angra mainyu and solomon don't, so we have to parse their img instead
+  if (a):
+    servant['class'] = a['title']
+  else:
+    img = divs[1].find('img')
+    servant['class'] = _get_class(img['alt'])
+  servant['class_icon_url'] = _create_local_image(divs[1], CLASS_ICONS_DIR)
+
+  servant['english_name'] = _get_stripped_text(divs[2])
+  category = _get_category(divs[1])
+  if (category):
+    servant['category'] = category
+
+  servant['japanese_name'] = _get_stripped_text(divs[3])
+
+  first = trs[1].find('div', {'title': '1st'})
+  servant['servant_portrait_one_url'] = _create_local_image(first, SERVANT_PORTRAITS_DIR)
+  # event servants have no 2nd or 3rd stage art (except saber lily)
+  # enemy servants have no 2nd, 3rd, or 4th stage art
+  second = trs[1].find('div', {'title': '2nd'})
+  if (second):
+    servant['servant_portrait_two_url'] = _create_local_image(second, SERVANT_PORTRAITS_DIR)
+  third = trs[1].find('div', {'title': '3rd'})
+  if (third):
+    servant['servant_portrait_three_url'] = _create_local_image(third, SERVANT_PORTRAITS_DIR)
+  fourth = trs[1].find('div', {'title': '4th'})
+  if (fourth):
+    servant['servant_portrait_four_url'] = _create_local_image(fourth, SERVANT_PORTRAITS_DIR)
+
+  ascensions_dict = _parse_ascension_table(soup)
+  if (ascensions_dict):
+    servant['ascensions'] = ascensions_dict
+
+  skill_reinforcement_dict = _parse_skill_reinforcement_table(soup)
+  if (skill_reinforcement_dict):
+    servant['skill_reinforcements'] = skill_reinforcement_dict
+
+  return servant
 
 def _parse_ascension_table(bs: BeautifulSoup) -> dict:
   # enemy servants have no ascension
@@ -165,6 +184,26 @@ def _parse_skill_reinforcement_table(bs: BeautifulSoup) -> dict:
   else:
     return None
 
+def _get_id(bs: BeautifulSoup) -> int:
+  span = bs.find('span', {'data-simple-tooltip': 'ID'})
+  text = _get_stripped_text(span)
+  return int(text)
+
+def _get_rarity(bs: BeautifulSoup) -> int:
+  span = bs.find('span', {'data-simple-tooltip': 'Rarity'})
+  text = _get_stripped_text(span)
+  return int(text[0])
+
+# this won't work if the class is more than one word
+# but there isn't a case where we need this and it isn't one word yet
+def _get_class(alt: str) -> str:
+  pattern = r'Icon Class (.*)[ \.].*'
+  match = re.match(pattern, alt)
+  if match:
+    return match[1]
+  else:
+    return alt
+
 def _get_img_src(bs: BeautifulSoup) -> str:
   img = bs.find('img')
   thumb = img['src']
@@ -182,10 +221,6 @@ def _get_servant_url(bs: BeautifulSoup) -> str:
   a = bs.find('a')
   href = a['href']
   return DOMAIN + href
-
-def _get_names(bs: BeautifulSoup) -> list:
-  strings = bs.stripped_strings
-  return [string for string in strings]
 
 def _thumb_to_src(thumb: str) -> str:
   pattern = r'/images/thumb/(.+)/(.+)/(.+)/.+'

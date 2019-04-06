@@ -1,16 +1,18 @@
 
 export default interface ServantData {
   id: number;
-  icon_url: string;
-  class_url: string;
+  servant_icon_url: string;
+  rarity: number;
+  class: number;
+  class_icon_url: string;
   english_name: string;
   japanese_name: string;
   category?: Category;
 
-  stage_one_url: string;
-  stage_two_url?: string;
-  stage_three_url?: string;
-  stage_four_url?: string;
+  servant_portrait_one_url: string;
+  servant_portrait_two_url?: string;
+  servant_portrait_three_url?: string;
+  servant_portrait_four_url?: string;
   ascensions?: Ascensions;
   skill_reinforcements?: SkillReinforcements;
 }
