@@ -6,7 +6,8 @@ import ServantPage from '../servants/ServantPage';
 import CraftEssences from './CraftEssences';
 import ServantPlanner from '../servantplanner/ServantPlanner';
 import About from './About';
-import ServantData, { ServantFilters } from '../../models/ServantData';
+import ServantData from '../../models/ServantData';
+import { ServantFilters } from '../servants/ServantFilters'
 import { callApi } from '../servants/ServantApi'
 
 export interface Props {

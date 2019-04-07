@@ -1,7 +1,9 @@
-import { Container, Dropdown, Button } from 'semantic-ui-react';
-import React, { Component } from 'react';
+import { Container, DropdownProps } from 'semantic-ui-react';
+import React, { Component, SyntheticEvent } from 'react';
 import ServantGrid from './ServantGrid';
-import ServantData, { ServantFilters } from '../../models/ServantData';
+import ServantData from '../../models/ServantData';
+import { ServantFilters, RarityFilters, ClassFilters, FilterType, defaultFilters } from './ServantFilters'
+import ServantFilterDropdown from './ServantFilterDropdown'
 
 export interface Props {
   servant_datas: ServantData[],
@@ -14,100 +16,13 @@ interface State {
 
 export default class ServantsPage extends Component<Props, State> {
   state = {
-    filters: {
-      rarity: [] as number[],
-      class: [] as string[]
-    }
+    filters: defaultFilters
   }
 
   componentDidMount() {
     if (this.props.servant_datas.length === 0)
       this.props.loadServantDatas()
   };
-
-
-  private rarityFilterOptions() {
-    const { servant_datas } = this.props
-
-    const rarities = servant_datas.map((servant_data) =>
-      servant_data.rarity
-    )
-
-    const unique = Array.from(new Set(rarities)).sort()
-
-    return unique.map((filter) => {
-      return ({
-        key: filter,
-        text: filter,
-        value: filter
-      })
-    })
-  }
-
-
-  private renderRarityFilter() {
-    const { servant_datas } = this.props
-    const { filters } = this.state
-
-    return (
-      servant_datas.length !== 0
-        ? <Dropdown
-            placeholder='Rarity'
-            multiple
-            search
-            selection
-            clearable
-            options={this.rarityFilterOptions()}
-            value={filters.rarity}
-            onChange={(event, data) => {
-              const new_filters = {...filters, rarity: (data.value as number[])}
-              this.setState({filters: new_filters});
-            }}
-          />
-        : null
-    )
-  }
-
-  private classFilterOptions() {
-    const { servant_datas } = this.props
-
-    const classes = servant_datas.map((servant_data) =>
-      servant_data.class
-    )
-
-    const unique = Array.from(new Set(classes)).sort()
-
-    return unique.map((filter) => {
-      return ({
-        key: filter,
-        text: filter,
-        value: filter
-      })
-    })
-  }
-
-  private renderClassFilter() {
-    const { servant_datas } = this.props
-    const { filters } = this.state
-
-    return (
-      servant_datas.length !== 0
-        ? <Dropdown
-            placeholder='Class'
-            multiple
-            search
-            selection
-            clearable
-            options={this.classFilterOptions()}
-            value={filters.class}
-            onChange={(event, data) => {
-              const new_filters = {...filters, class: (data.value as string[])}
-              this.setState({filters: new_filters});
-            }}
-          />
-        : null
-    )
-  }
 
   private filteredServantData() {
     const { servant_datas } = this.props;
@@ -128,14 +43,30 @@ export default class ServantsPage extends Component<Props, State> {
     return filtered
   }
 
+  onChange = (type: FilterType) => (event: SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => {
+    const { filters } = this.state;
+
+    const new_filters = {...filters}
+
+    switch(type) {
+      case FilterType.Rarity:
+        new_filters.rarity = (data.value as RarityFilters)
+        break;
+      case FilterType.Class:
+        new_filters.class = (data.value as ClassFilters)
+    }
+
+    this.setState({filters: new_filters});
+  }
+
   render() {
     const { servant_datas } = this.props;
     const { filters } = this.state;
 
     return (
       <Container>
-        {this.renderRarityFilter()}
-        {this.renderClassFilter()}
+        <ServantFilterDropdown servant_datas={servant_datas} type={FilterType.Rarity} value={filters.rarity} onChange={this.onChange(FilterType.Rarity)}/>
+        <ServantFilterDropdown servant_datas={servant_datas} type={FilterType.Class} value={filters.class} onChange={this.onChange(FilterType.Class)}/>
         <ServantGrid servant_datas={this.filteredServantData()}/>
       </Container>
     );
