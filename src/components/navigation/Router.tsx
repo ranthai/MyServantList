@@ -19,16 +19,17 @@ export interface State {
 
 export default class Router extends Component<Props, State> {
   state = {
-    servant_datas: []
+    servant_datas: [] as ServantData[]
   }
 
   loadServantDatas = () => {
-    callApi()
-    .then((servant_datas: ServantData[]) => {
-      this.setState({
-        servant_datas: servant_datas
+    if (this.state.servant_datas.length === 0)
+      callApi()
+      .then((servant_datas: ServantData[]) => {
+        this.setState({
+          servant_datas: servant_datas
+        })
       })
-    })
   }
 
   render() {

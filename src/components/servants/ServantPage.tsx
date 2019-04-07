@@ -1,4 +1,4 @@
-import { Container, Dropdown } from 'semantic-ui-react';
+import { Container, Dropdown, Button } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import ServantGrid from './ServantGrid';
 import ServantData, { ServantFilters } from '../../models/ServantData';
@@ -9,17 +9,19 @@ export interface Props {
 }
 
 interface State {
-  filters: ServantFilters,
-  visible_servant_datas: ServantData[]
+  filters: ServantFilters
 }
 
 export default class ServantsPage extends Component<Props, State> {
-  // state = {
-  //   class_filters: []
-  // }
+  state = {
+    filters: {
+      class_filters: [] as string[]
+    }
+  }
 
   componentDidMount() {
-    this.props.loadServantDatas()
+    if (this.props.servant_datas.length === 0)
+      this.props.loadServantDatas()
   };
 
   private classFilterOptions() {
@@ -42,10 +44,10 @@ export default class ServantsPage extends Component<Props, State> {
 
   private renderClassFilter() {
     const { servant_datas } = this.props
-    // const { class_filters } = this.state
+    const { filters } = this.state
 
     return (
-      servant_datas
+      servant_datas.length !== 0
         ? <Dropdown
             placeholder='Class'
             multiple
@@ -53,21 +55,38 @@ export default class ServantsPage extends Component<Props, State> {
             selection
             clearable
             options={this.classFilterOptions()}
-            // onChange={(event, data) => {
-            //   this.setState({class_filters: (data.value as string[])});
-            // }}
+            value={filters.class_filters}
+            onChange={(event, data) => {
+              const new_filters = {...filters, class_filters: (data.value as string[])}
+              this.setState({filters: new_filters});
+            }}
           />
         : null
     )
   }
 
+  private filteredServantData() {
+    const { servant_datas } = this.props;
+    const { filters } = this.state;
+
+    var filtered = servant_datas;
+
+    if (filters.class_filters.length !== 0)
+      filtered = filtered.filter((servant) =>{
+        return filters.class_filters.includes(servant.class)
+      })
+
+    return filtered
+  }
+
   render() {
-    const { servant_datas } = this.props
+    const { servant_datas } = this.props;
+    const { filters } = this.state;
 
     return (
       <Container>
         {this.renderClassFilter()}
-        <ServantGrid servant_datas={servant_datas}/>
+        <ServantGrid servant_datas={this.filteredServantData()}/>
       </Container>
     );
   }

@@ -3,7 +3,7 @@ export default interface ServantData {
   id: number;
   servant_icon_url: string;
   rarity: number;
-  class: number;
+  class: string;
   class_icon_url: string;
   english_name: string;
   japanese_name: string;

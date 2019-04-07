@@ -92,7 +92,7 @@ export default class ServantCard extends Component<Props, State> {
     }
   ]
 
-  setStatus = (event: SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+  setStatus = (event: SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => {
     const { servant_data } = this.props
     var value = (data.value as CollectionStatus)
 
