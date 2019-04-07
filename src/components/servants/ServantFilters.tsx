@@ -9,6 +9,7 @@ export interface ServantFilters {
 }
 
 export type RarityFilters = number[];
+
 export type ClassFilters = string[];
 
 export enum FilterType {
