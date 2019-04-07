@@ -18,7 +18,8 @@ export default interface ServantData {
 }
 
 export interface ServantFilters {
-  class_filters: string[]
+  rarity: number[];
+  class: string[];
 }
 
 export enum Category {
